@@ -30,7 +30,12 @@ async function createSessionForUser(user: any) {
   await SessionService.createSession(session);
 }
 
-export async function loginAction(state: LoginFormState, formData: FormData) {
+export async function loginWithPasswordAction(
+  state: LoginFormState,
+  formData: FormData
+) {
+  console.log('loginWithPasswordAction');
+
   const parse = LoginFormSchema.safeParse({
     email: formData.get('email'),
     password: formData.get('password'),
@@ -54,7 +59,7 @@ export async function loginAction(state: LoginFormState, formData: FormData) {
 export async function loginWithGoogleAction(user: any) {
   try {
     console.log('loginWithGoogleAction');
-    // const user = await signInWithGoogle();
+    const user = await signInWithGoogle();
     await createSessionForUser(user);
     redirect('/dashboard');
   } catch (error) {

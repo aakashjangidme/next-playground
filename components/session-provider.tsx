@@ -34,7 +34,7 @@ export const SessionProvider = ({ children }: SessionProviderProps) => {
 
     const fetchSessionData = async () => {
       try {
-        const response = await fetch('/api/session', { signal });
+        const response = await fetch('/api/auth/session', { signal });
         if (!response.ok) {
           throw new Error('Failed to fetch session');
         }

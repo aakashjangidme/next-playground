@@ -7,6 +7,9 @@ import {
   signInWithPopup as firebaseSignInWithPopup,
   signInWithEmailAndPassword as firebaseSignInWithEmailAndPassword,
   signOut as firebaseSignOut,
+  signInWithRedirect,
+  getRedirectResult,
+  signInWithPopup,
 } from 'firebase/auth';
 import { getFirestore } from 'firebase/firestore';
 import { firebaseConfig } from './config';
@@ -25,11 +28,15 @@ if (typeof window !== 'undefined') {
 
 export { auth, firestore, analytics };
 
-// Sign-in Functions
+// Sign-in Functions (only for client-side)
 const signInWithGoogle = async () => {
   const provider = new GoogleAuthProvider();
-  const result = await firebaseSignInWithPopup(auth, provider);
+  const result = await signInWithPopup(auth, provider);
 
+  // const result = await getRedirectResult(auth);
+  // if (!result) {
+  //   throw new Error('No user found');
+  // }
   const user = result.user;
   return user;
 };

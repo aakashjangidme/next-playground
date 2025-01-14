@@ -1,9 +1,14 @@
 'use client';
 
 import { useActionState, useTransition } from 'react';
-import { loginAction, loginWithGoogleAction } from '@/app/actions/auth';
+import {
+  loginWithPasswordAction,
+  loginWithGoogleAction,
+} from '@/app/actions/auth';
 import { OctagonAlert } from 'lucide-react';
+import Form from 'next/form';
 import { useAuth } from '@/lib/auth-context';
+import { signInWithGoogle } from '@/lib/firebase/client-app';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import {
@@ -21,8 +26,12 @@ export function LoginForm({
   className,
   ...props
 }: React.ComponentPropsWithoutRef<'div'>) {
-  const [state, action, pending] = useActionState(loginAction, undefined);
-  const { loading: isGoogleLoginPending, signInWithGoogle } = useAuth();
+  const [state, action, pending] = useActionState(
+    loginWithPasswordAction,
+    undefined
+  );
+
+  const { signInWithGoogle, loading } = useAuth();
 
   return (
     <div className={cn('flex flex-col gap-6', className)} {...props}>
@@ -34,50 +43,62 @@ export function LoginForm({
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <form action={action}>
-            <div className="flex flex-col gap-6">
-              <div className="grid gap-2">
-                <Label htmlFor="email">Email</Label>
-                <Input
-                  name="email"
-                  id="email"
-                  type="email"
-                  placeholder="m@example.com"
-                  required
-                />
-              </div>
-              <div className="grid gap-2">
-                <div className="flex items-center">
-                  <Label htmlFor="password">Password</Label>
-                  <a
-                    href="#"
-                    className="ml-auto inline-block text-sm underline-offset-4 hover:underline"
-                  >
-                    Forgot your password?
-                  </a>
+          <div>
+            <Form action={action}>
+              <div className="flex flex-col gap-6">
+                <div className="grid gap-2">
+                  <Label htmlFor="email">Email</Label>
+                  <Input
+                    name="email"
+                    id="email"
+                    type="email"
+                    placeholder="m@example.com"
+                    required
+                  />
                 </div>
-                <Input name="password" id="password" type="password" required />
+                <div className="grid gap-2">
+                  <div className="flex items-center">
+                    <Label htmlFor="password">Password</Label>
+                    <a
+                      href="#"
+                      className="ml-auto inline-block text-sm underline-offset-4 hover:underline"
+                    >
+                      Forgot your password?
+                    </a>
+                  </div>
+                  <Input
+                    name="password"
+                    id="password"
+                    type="password"
+                    required
+                  />
+                </div>
+                <Button
+                  type="submit"
+                  className="w-full flex items-center justify-center gap-2"
+                  disabled={pending}
+                >
+                  {pending && <LoadingSpinner type="bars" />}
+                  <span>{pending ? 'Logging in...' : 'Login'}</span>
+                </Button>
               </div>
-              <Button
-                type="submit"
-                className="w-full flex items-center justify-center gap-2"
-                disabled={pending}
-              >
-                {pending && <LoadingSpinner type="bars" />}
-                <span>{pending ? 'Logging in...' : 'Login'}</span>
-              </Button>
+            </Form>
+
+            <Form action={signInWithGoogle} className="mt-4">
               <Button
                 variant="outline"
                 className="w-full flex items-center justify-center gap-2"
-                onClick={() => signInWithGoogle()}
-                disabled={isGoogleLoginPending}
+                disabled={loading}
               >
-                {isGoogleLoginPending && <LoadingSpinner type="bars" />}
+                {loading && <LoadingSpinner type="bars" />}
                 <span>
-                  {isGoogleLoginPending ? 'Logging in...' : 'Login with Google'}
+                  {loading
+                    ? 'Logging in...'
+                    : 'Login with Google'}
                 </span>
               </Button>
-            </div>
+            </Form>
+
             <div className="mt-4 text-center text-sm">
               Don&apos;t have an account?{' '}
               <a href="#" className="underline underline-offset-4">
@@ -96,7 +117,7 @@ export function LoginForm({
                 </p>
               </div>
             )}
-          </form>
+          </div>
         </CardContent>
       </Card>
     </div>

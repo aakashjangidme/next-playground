@@ -1,10 +1,24 @@
 'use client';
 
-import { createContext, useContext, useEffect, useMemo, useState, ReactNode, FC } from 'react';
+import {
+  createContext,
+  useContext,
+  useEffect,
+  useMemo,
+  useState,
+  ReactNode,
+  FC,
+  useActionState,
+} from 'react';
 import { loginWithGoogleAction } from '@/app/actions/auth';
 import { onAuthStateChanged, User } from 'firebase/auth';
-import { auth, signInWithEmailAndPassword, signInWithGoogle, signOut } from './firebase/client-app';
-
+import useSession from '@/utils/use-session';
+import {
+  auth,
+  signInWithEmailAndPassword,
+  signInWithGoogle,
+  signOut,
+} from './firebase/client-app';
 
 interface AuthContextType {
   loading: boolean;
@@ -23,11 +37,18 @@ type AuthProviderProps = {
   children: ReactNode;
 };
 
+const refreshSession = () => {};
+
 export const AuthProvider = ({ children }: AuthProviderProps) => {
   const [user, setUser] = useState<User | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
+  const [loginWithGoogleState, _loginWithGoogleAction, loginWithGooglePending] =
+    useActionState(loginWithGoogleAction, undefined);
+
+  const { login } = useSession();
 
   useEffect(() => {
+    setLoading(true);
     const unsubscribe = onAuthStateChanged(auth, (user) => {
       setUser(user);
       setLoading(false);
@@ -36,11 +57,14 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   }, []);
 
   const _signInWithGoogle = async () => {
-    console.log('_signInWithGoogle');
+    setLoading(true);
     const _user = await signInWithGoogle();
-    console.log('_user', _user);
+
+    const _idToken = (await _user?.getIdToken()) as string;
 
     await loginWithGoogleAction(_user);
+
+    setLoading(false);
   };
 
   const value = useMemo(
