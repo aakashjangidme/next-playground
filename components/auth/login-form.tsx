@@ -1,8 +1,9 @@
 'use client';
 
-import { useActionState } from 'react';
-import { loginAction } from '@/app/actions/auth';
+import { useActionState, useTransition } from 'react';
+import { loginAction, loginWithGoogleAction } from '@/app/actions/auth';
 import { OctagonAlert } from 'lucide-react';
+import { useAuth } from '@/lib/auth-context';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import {
@@ -21,6 +22,7 @@ export function LoginForm({
   ...props
 }: React.ComponentPropsWithoutRef<'div'>) {
   const [state, action, pending] = useActionState(loginAction, undefined);
+  const { loading: isGoogleLoginPending, signInWithGoogle } = useAuth();
 
   return (
     <div className={cn('flex flex-col gap-6', className)} {...props}>
@@ -28,7 +30,7 @@ export function LoginForm({
         <CardHeader>
           <CardTitle className="text-2xl">Login</CardTitle>
           <CardDescription>
-            Enter your email below to login to your account
+            Enter your email below to log in to your account.
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -54,28 +56,26 @@ export function LoginForm({
                     Forgot your password?
                   </a>
                 </div>
-
                 <Input name="password" id="password" type="password" required />
               </div>
               <Button
                 type="submit"
                 className="w-full flex items-center justify-center gap-2"
-                aria-disabled={pending}
                 disabled={pending}
               >
-                {pending && (
-                  <span className="inline-flex">
-                    <LoadingSpinner type="bars" />
-                  </span>
-                )}
+                {pending && <LoadingSpinner type="bars" />}
                 <span>{pending ? 'Logging in...' : 'Login'}</span>
               </Button>
               <Button
                 variant="outline"
-                className="w-full"
-                aria-disabled={pending}
+                className="w-full flex items-center justify-center gap-2"
+                onClick={() => signInWithGoogle()}
+                disabled={isGoogleLoginPending}
               >
-                Login with Google
+                {isGoogleLoginPending && <LoadingSpinner type="bars" />}
+                <span>
+                  {isGoogleLoginPending ? 'Logging in...' : 'Login with Google'}
+                </span>
               </Button>
             </div>
             <div className="mt-4 text-center text-sm">
@@ -84,21 +84,18 @@ export function LoginForm({
                 Sign up
               </a>
             </div>
-
-            <div
-              className="flex h-8 items-end space-x-1"
-              aria-live="polite"
-              aria-atomic="true"
-            >
-              {state?.errors && (
-                <>
-                  <OctagonAlert className="h-5 w-5 text-red-500" />
-                  <p className="text-sm text-red-500">
-                    {state.errors.email || state.errors.password}
-                  </p>
-                </>
-              )}
-            </div>
+            {state?.errors && (
+              <div
+                className="mt-4 flex items-center gap-2 text-red-500"
+                aria-live="polite"
+                aria-atomic="true"
+              >
+                <OctagonAlert className="h-5 w-5" />
+                <p className="text-sm">
+                  {state.errors.email || state.errors.password}
+                </p>
+              </div>
+            )}
           </form>
         </CardContent>
       </Card>

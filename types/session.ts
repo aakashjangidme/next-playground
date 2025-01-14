@@ -1,7 +1,8 @@
 export interface SessionData {
   user?: {
     uid: string;
-    email: string;
+    email?: string;
+    token: string;
   } | null;
   expiresAt?: null;
 }

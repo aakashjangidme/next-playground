@@ -5,6 +5,10 @@ import { cn } from '@/lib/utils';
 import { AppProviders } from '../components/app-providers';
 import './globals.css';
 
+// Force next.js to treat this route as server-side rendered
+// Without this line, during the build process, next.js will treat this route as static and build a static HTML file for it
+export const dynamic = 'force-dynamic';
+
 const geistSans = Geist({
   variable: '--font-geist-sans',
   subsets: ['latin'],

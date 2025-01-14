@@ -1,5 +1,5 @@
 import { Suspense } from 'react';
-import { LinearLoaderIndicator } from '@/lib/with-loadable';
+import { LinearLoaderIndicator } from '@/utils/with-loadable';
 import { SiteFooter } from '@/components/layout/footer/site-footer';
 import { SiteHeader } from '@/components/layout/header/site-header';
 

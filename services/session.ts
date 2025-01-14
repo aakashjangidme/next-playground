@@ -1,12 +1,11 @@
 import 'server-only';
+import { sessionOptions } from '@/config/session';
+import { defaultSession, SessionData } from '@/types/session';
 import { getIronSession } from 'iron-session';
 import { cookies } from 'next/headers';
-import { sessionOptions } from '@/lib/session.config';
-import { defaultSession, SessionData } from '@/lib/session.types';
 import logger from '@/utils/logger';
 
 export async function getSession() {
-  logger.debug('---getSession---');
   const session = await getIronSession<SessionData>(
     await cookies(),
     sessionOptions
@@ -16,8 +15,6 @@ export async function getSession() {
     session.user = defaultSession.user;
     session.expiresAt = defaultSession.expiresAt;
   }
-
-  // lookup sessionObject in the database.
 
   return session;
 }
