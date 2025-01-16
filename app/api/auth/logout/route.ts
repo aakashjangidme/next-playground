@@ -1,6 +1,6 @@
 import 'server-only';
 import { NextRequest, NextResponse } from 'next/server';
-import { verifyIdToken } from '@/lib/firebase/admin-app';
+import { verifyIdToken } from '@/lib/firebase/admin';
 
 export async function POST(req: NextRequest) {
   const body = await req.json();

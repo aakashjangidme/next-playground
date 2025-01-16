@@ -1,14 +1,10 @@
 'use client';
 
-import { useActionState, useTransition } from 'react';
-import {
-  loginWithPasswordAction,
-  loginWithGoogleAction,
-} from '@/app/actions/auth';
+import { useActionState } from 'react';
+import { loginWithPasswordAction } from '@/app/actions/auth';
 import { OctagonAlert } from 'lucide-react';
 import Form from 'next/form';
 import { useAuth } from '@/lib/auth-context';
-import { signInWithGoogle } from '@/lib/firebase/client-app';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import {
@@ -30,8 +26,6 @@ export function LoginForm({
     loginWithPasswordAction,
     undefined
   );
-
-  const { signInWithGoogle, loading } = useAuth();
 
   return (
     <div className={cn('flex flex-col gap-6', className)} {...props}>
@@ -83,22 +77,7 @@ export function LoginForm({
                 </Button>
               </div>
             </Form>
-
-            <Form action={signInWithGoogle} className="mt-4">
-              <Button
-                variant="outline"
-                className="w-full flex items-center justify-center gap-2"
-                disabled={loading}
-              >
-                {loading && <LoadingSpinner type="bars" />}
-                <span>
-                  {loading
-                    ? 'Logging in...'
-                    : 'Login with Google'}
-                </span>
-              </Button>
-            </Form>
-
+            <SignInWithGoogleButton />
             <div className="mt-4 text-center text-sm">
               Don&apos;t have an account?{' '}
               <a href="#" className="underline underline-offset-4">
@@ -123,3 +102,28 @@ export function LoginForm({
     </div>
   );
 }
+
+const SignInWithGoogleButton = () => {
+  const { loginWithGoogle, status } = useAuth();
+
+  const loading = status === 'loading';
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    loginWithGoogle();
+  };
+
+  return (
+    <form className="mt-4" onSubmit={handleSubmit}>
+      <Button
+        variant="outline"
+        className="w-full flex items-center justify-center gap-2"
+        disabled={loading}
+        type="submit"
+      >
+        {loading && <LoadingSpinner type="bars" />}
+        <span>{loading ? 'Logging in...' : 'Login with Google'}</span>
+      </Button>
+    </form>
+  );
+};
